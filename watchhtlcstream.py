@@ -120,7 +120,12 @@ def main():
             inchanid = event.incoming_channel_id
             outchanid = event.outgoing_channel_id
 
-            outcome = event.ListFields()[-1][0].name
+            fields = event.ListFields()
+            if not fields:
+                # lnd >= 0.14 opens the stream with an empty subscribed_event
+                # that these 2023 protos do not know; nothing to log.
+                continue
+            outcome = fields[-1][0].name
             eventinfo = getattr(event, outcome)
             eventtype = event.EventType.keys()[event.event_type]
             timetext = time.ctime(event.timestamp_ns/1e9)
